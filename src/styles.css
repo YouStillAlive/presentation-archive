@@ -1118,12 +1118,22 @@ a {
 
   .searchWrap,
   .toolbar select {
-    height: 50px;
+    height: 58px;
     border-radius: 14px;
   }
 
   .searchWrap {
     padding: 0 13px;
+  }
+
+  .searchWrap input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .clearInput {
+    min-width: 38px;
+    min-height: 38px;
   }
 
   .toolbar select {

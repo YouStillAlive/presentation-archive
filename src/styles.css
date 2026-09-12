@@ -507,12 +507,18 @@ a {
   border: 1px solid rgba(148, 163, 184, 0.18);
   box-shadow: 0 18px 26px rgba(15, 23, 42, 0.05);
   border-top: 4px solid rgba(126, 144, 229, 0.5);
+  cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 24px 42px rgba(15, 23, 42, 0.08);
+}
+
+.card:focus-visible {
+  outline: 3px solid rgba(77, 126, 243, 0.48);
+  outline-offset: 3px;
 }
 
 .dark .card {
@@ -546,6 +552,28 @@ a {
   height: 64px;
   border-radius: 18px;
   margin: 0 auto 10px;
+}
+
+.previewFrame {
+  width: 100%;
+  height: 300px;
+  margin: 4px 0 18px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 16px;
+  background: #eef2f7;
+}
+
+.previewFrame iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+}
+
+.dark .previewFrame {
+  background: #182333;
+  border-color: rgba(148, 163, 184, 0.24);
 }
 
 .fav {
@@ -711,16 +739,69 @@ a {
   place-items: center;
   padding: 24px;
   background: rgba(15, 23, 42, 0.45);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .modal {
   position: relative;
   width: min(100%, 560px);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
   padding: 28px 24px 22px;
   border-radius: 28px;
   background: #fff;
   box-shadow: 0 30px 70px rgba(15, 23, 42, 0.25);
   border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.presentationModal {
+  width: min(100%, 940px);
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+.modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: rgba(91, 109, 143, 0.45);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+.modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.presentationModal .fileIcon.large {
+  display: none;
+}
+
+.presentationModal .previewFrame {
+  flex: 0 0 auto;
+  min-width: 0;
+  height: min(68vh, 530px);
+  margin: 0 0 20px;
+  border-radius: 18px;
+}
+
+.presentationDetails {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  padding-right: 4px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .dark .modal {
@@ -1112,8 +1193,21 @@ a {
   .modal {
     max-height: calc(100vh - 20px);
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 24px 17px 18px;
     border-radius: 24px 24px 18px 18px;
+  }
+
+  .presentationModal {
+    width: 100%;
+    max-height: calc(100vh - 20px);
+    padding: 14px;
+  }
+
+  .presentationModal .previewFrame {
+    height: min(48vh, 360px);
+    margin-bottom: 16px;
+    border-radius: 15px;
   }
 
   .modal h2 {
@@ -1148,6 +1242,12 @@ a {
   .fileIcon.large {
     width: 56px;
     height: 56px;
+  }
+
+  .previewFrame {
+    height: 220px;
+    margin-bottom: 16px;
+    border-radius: 14px;
   }
 
   .close {

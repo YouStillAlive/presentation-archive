@@ -314,7 +314,7 @@ function App() {
 
       {selected && (
         <div className="backdrop" onMouseDown={() => setSelected(null)}>
-          <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
+          <div className="modal presentationModal" onMouseDown={(e) => e.stopPropagation()}>
             <button type="button" className="close" onClick={() => setSelected(null)} aria-label="Закрыть">
               <X size={18} />
             </button>
@@ -323,39 +323,50 @@ function App() {
               <FileText />
             </div>
 
-            <small>{selected.category}</small>
-
-            <h2>{selected.title}</h2>
-
-            {selected.description && <p>{selected.description}</p>}
-
-            <div className="meta">
-              <span>
-                <CalendarDays size={15} />
-                {fmt(selected.date)}
-              </span>
-
-              <span>{selected.year}</span>
+            <div className="previewFrame">
+              <iframe
+                title={`Предпросмотр: ${selected.title}`}
+                src={`https://drive.google.com/file/d/${selected.id}/preview`}
+                allow="autoplay"
+                allowFullScreen
+              />
             </div>
 
-            <div className="modalTags">
-              {selected.tags.map((t) => (
-                <span key={t}>#{t}</span>
-              ))}
-            </div>
+            <div className="presentationDetails">
+              <small>{selected.category}</small>
 
-            <div className="actions">
-              <a className="primary" href={selected.driveUrl} target="_blank" rel="noreferrer">
-                <ExternalLink size={17} />
-                Открыть Google Drive
-              </a>
+              <h2>{selected.title}</h2>
 
-              {selected.pdfUrl && (
-                <a className="secondary" href={selected.pdfUrl} target="_blank" rel="noreferrer">
-                  <FileText size={17} />
-                  Открыть PDF
+              {selected.description && <p>{selected.description}</p>}
+
+              <div className="meta">
+                <span>
+                  <CalendarDays size={15} />
+                  {fmt(selected.date)}
+                </span>
+
+                <span>{selected.year}</span>
+              </div>
+
+              <div className="modalTags">
+                {selected.tags.map((t) => (
+                  <span key={t}>#{t}</span>
+                ))}
+              </div>
+
+              <div className="actions">
+                <a className="primary" href={selected.driveUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink size={17} />
+                  Открыть Google Drive
                 </a>
-              )}
+
+                {selected.pdfUrl && (
+                  <a className="secondary" href={selected.pdfUrl} target="_blank" rel="noreferrer">
+                    <FileText size={17} />
+                    Открыть PDF
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -378,13 +389,32 @@ function Card({
   tag: (t: string) => void;
 }) {
   return (
-    <article className="card">
+    <article
+      className="card"
+      role="button"
+      tabIndex={0}
+      onClick={open}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          open();
+        }
+      }}
+    >
       <div className="cardTop">
         <div className="fileIcon">
           <FileText size={20} />
         </div>
 
-        <button type="button" className={`fav ${fav ? "on" : ""}`} onClick={toggle} aria-label="Добавить в избранное">
+        <button
+          type="button"
+          className={`fav ${fav ? "on" : ""}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            toggle();
+          }}
+          aria-label="Добавить в избранное"
+        >
           <Star size={18} fill={fav ? "currentColor" : "none"} />
         </button>
       </div>
@@ -397,7 +427,14 @@ function Card({
 
       <div className="tags">
         {p.tags.slice(0, 4).map((t) => (
-          <button type="button" key={t} onClick={() => tag(t)}>
+          <button
+            type="button"
+            key={t}
+            onClick={(event) => {
+              event.stopPropagation();
+              tag(t);
+            }}
+          >
             #{t}
           </button>
         ))}
@@ -409,7 +446,14 @@ function Card({
           {fmt(p.date)}
         </span>
 
-        <button type="button" className="open" onClick={open}>
+        <button
+          type="button"
+          className="open"
+          onClick={(event) => {
+            event.stopPropagation();
+            open();
+          }}
+        >
           Открыть
           <ExternalLink size={14} />
         </button>

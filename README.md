@@ -11,11 +11,6 @@ npm run dev
 
 ## Google Drive data
 
-The catalog loads files through the Cloudflare Worker configured in `VITE_DRIVE_WORKER_URL`. The Worker reads both public folders and labels each file by its source folder:
-
-- `Общее пение`: `16K1vxW6Ah36CJMo6VKmV0kax9dtbDA87`
-- `Хор`: `1inFcdWZpxAGSmkOFcb0kdZ3kinO9jYFb`
-
 The Worker needs `GOOGLE_API_KEY` and can use these variables for the folder IDs:
 
 - `GOOGLE_DRIVE_FOLDER_ID` for `Общее пение`

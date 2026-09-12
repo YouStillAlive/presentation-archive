@@ -33,6 +33,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_DRIVE_WORKER_URL: ${{ vars.VITE_DRIVE_WORKER_URL }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

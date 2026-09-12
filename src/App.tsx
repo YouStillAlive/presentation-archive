@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, CalendarDays, ExternalLink, FileText, Menu, Moon, Search, Star, Sun, X } from "lucide-react";
+import { BookOpen, CalendarDays, Download, ExternalLink, FileText, Menu, Moon, Search, Star, Sun, X } from "lucide-react";
 import { categories } from "./data";
 import { loadPresentations } from "./drive";
 import type { Presentation } from "./types";
@@ -355,6 +355,15 @@ function App() {
               </div>
 
               <div className="actions">
+                <a
+                  className="secondary"
+                  href={`https://drive.google.com/uc?export=download&id=${selected.id}`}
+                  download
+                >
+                  <Download size={17} />
+                  Скачать файл
+                </a>
+
                 <a className="primary" href={selected.driveUrl} target="_blank" rel="noreferrer">
                   <ExternalLink size={17} />
                   Открыть Google Drive

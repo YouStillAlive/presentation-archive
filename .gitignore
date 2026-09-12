@@ -1,6 +1,9 @@
 # dependencies
 node_modules/
 
+# Cloudflare Worker
+worker/
+
 # build output
 dist/
 
@@ -20,3 +23,9 @@ yarn-error.log*
 # optional caches
 .cache/
 .eslintcache
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example

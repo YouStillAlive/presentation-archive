@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, CalendarDays, ExternalLink, FileText, Menu, Moon, Search, Star, Sun, X } from "lucide-react";
 import { categories } from "./data";
-import { driveFolderUrl, loadPresentations } from "./drive";
+import { loadPresentations } from "./drive";
 import type { Presentation } from "./types";
 
 const fmt = (d: string) =>
-  new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(d));
+  new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(d));
 
 function App() {
   const [q, setQ] = useState("");
@@ -17,16 +21,23 @@ function App() {
   const [presentations, setPresentations] = useState<Presentation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
+
     const saved = window.localStorage.getItem("theme");
+
     return saved === "dark" || saved === "light" ? saved : "light";
   });
+
   const [favs, setFavs] = useState<Set<string>>(() => {
-    if (typeof window === "undefined") return new Set<string>();
+    if (typeof window === "undefined") {
+      return new Set<string>();
+    }
 
     try {
       const saved = JSON.parse(window.localStorage.getItem("favorites") || "[]") as string[];
+
       return new Set(saved);
     } catch {
       return new Set<string>();
@@ -47,13 +58,19 @@ function App() {
 
     loadPresentations()
       .then((items) => {
-        if (active) setPresentations(items);
+        if (active) {
+          setPresentations(items);
+        }
       })
       .catch((error: unknown) => {
-        if (active) setLoadError(error instanceof Error ? error.message : "Не удалось загрузить файлы из Google Drive.");
+        if (active) {
+          setLoadError(error instanceof Error ? error.message : "Не удалось загрузить файлы из Google Drive.");
+        }
       })
       .finally(() => {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       });
 
     return () => {
@@ -72,16 +89,25 @@ function App() {
     return presentations
       .filter((p) => {
         const text = [p.title, p.category, p.description || "", ...p.tags].join(" ").toLocaleLowerCase("ru");
+
         const matchesSearch = !s || text.includes(s);
+
         const matchesCategory =
           category === "Все" ? true : category === "Избранное" ? favs.has(p.id) : p.category === category;
+
         const matchesTag = !tag || p.tags.includes(tag);
 
         return matchesSearch && matchesCategory && matchesTag;
       })
       .sort((a, b) => {
-        if (sort === "az") return a.title.localeCompare(b.title, "ru");
-        if (sort === "oldest") return a.date.localeCompare(b.date);
+        if (sort === "az") {
+          return a.title.localeCompare(b.title, "ru");
+        }
+
+        if (sort === "oldest") {
+          return a.date.localeCompare(b.date);
+        }
+
         return b.date.localeCompare(a.date);
       });
   }, [presentations, q, category, tag, sort, favs]);
@@ -95,8 +121,13 @@ function App() {
   const toggleFav = (id: string) => {
     setFavs((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
       return next;
     });
   };
@@ -117,6 +148,7 @@ function App() {
           <div className="brandIcon">
             <BookOpen size={21} />
           </div>
+
           <div>
             <b>Библиотека презентаций</b>
             <small>{presentations.length} материалов</small>
@@ -127,6 +159,7 @@ function App() {
           <button type="button" className="iconBtn" aria-label="Сменить тему" onClick={toggleTheme}>
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
+
           <button type="button" className="menuBtn" aria-label="Открыть меню" onClick={() => setMenu((v) => !v)}>
             <Menu size={20} />
           </button>
@@ -136,6 +169,7 @@ function App() {
       <div className="layout">
         <aside className={`sidebar ${menu ? "open" : ""}`}>
           <div className="label">Разделы</div>
+
           {categories.map((c) => (
             <button
               type="button"
@@ -146,12 +180,15 @@ function App() {
               <span>
                 <c.icon size={18} />
               </span>
+
               {c.name}
+
               {c.name === "Избранное" && <em>{favs.size}</em>}
             </button>
           ))}
 
           <div className="label topics">Темы</div>
+
           <div className="sideTags">
             {allTags.map((t) => (
               <button
@@ -173,7 +210,9 @@ function App() {
         <main className="main">
           <section className="hero">
             <div className="heroGlow" />
+
             <div className="eyebrow">Библиотека презентаций</div>
+
             <p>Поиск по названию, категории, описанию и тегам в одном месте.</p>
 
             <div className="heroMetrics">
@@ -181,10 +220,12 @@ function App() {
                 <strong>{presentations.length}</strong>
                 <span>всего</span>
               </div>
+
               <div className="metric">
                 <strong>{allTags.length}</strong>
                 <span>тем</span>
               </div>
+
               <div className="metric">
                 <strong>{favs.size}</strong>
                 <span>избранное</span>
@@ -195,7 +236,9 @@ function App() {
           <div className="toolbar">
             <div className="searchWrap">
               <Search size={19} />
+
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Поиск презентаций..." />
+
               {q && (
                 <button type="button" className="clearInput" onClick={() => setQ("")} aria-label="Очистить поиск">
                   <X size={16} />
@@ -215,8 +258,10 @@ function App() {
               <span className="statusDot" />
               <h2>{tag ? `#${tag}` : category}</h2>
             </div>
+
             <div className="resultMeta">
               <span>{filtered.length}</span>
+
               {(q || category !== "Все" || tag) && (
                 <button type="button" className="resetBtn" onClick={clearFilters}>
                   Сбросить
@@ -234,9 +279,10 @@ function App() {
             <div className="empty">
               <h3>Не удалось загрузить библиотеку</h3>
               <p>{loadError}</p>
-              <a className="primary" href={driveFolderUrl} target="_blank" rel="noreferrer">
-                Открыть папку Google Drive
-              </a>
+
+              <button type="button" className="primary" onClick={() => window.location.reload()}>
+                Попробовать снова
+              </button>
             </div>
           ) : filtered.length ? (
             <div className="grid">
@@ -257,7 +303,9 @@ function App() {
           ) : (
             <div className="empty">
               <Search size={34} />
+
               <h3>Ничего не найдено</h3>
+
               <p>Попробуй другое название, тему или категорию.</p>
             </div>
           )}
@@ -276,7 +324,9 @@ function App() {
             </div>
 
             <small>{selected.category}</small>
+
             <h2>{selected.title}</h2>
+
             {selected.description && <p>{selected.description}</p>}
 
             <div className="meta">
@@ -284,6 +334,7 @@ function App() {
                 <CalendarDays size={15} />
                 {fmt(selected.date)}
               </span>
+
               <span>{selected.year}</span>
             </div>
 
@@ -298,6 +349,7 @@ function App() {
                 <ExternalLink size={17} />
                 Открыть Google Drive
               </a>
+
               {selected.pdfUrl && (
                 <a className="secondary" href={selected.pdfUrl} target="_blank" rel="noreferrer">
                   <FileText size={17} />
@@ -312,7 +364,19 @@ function App() {
   );
 }
 
-function Card({ p, fav, toggle, open, tag }: { p: Presentation; fav: boolean; toggle: () => void; open: () => void; tag: (t: string) => void }) {
+function Card({
+  p,
+  fav,
+  toggle,
+  open,
+  tag,
+}: {
+  p: Presentation;
+  fav: boolean;
+  toggle: () => void;
+  open: () => void;
+  tag: (t: string) => void;
+}) {
   return (
     <article className="card">
       <div className="cardTop">
@@ -326,7 +390,9 @@ function Card({ p, fav, toggle, open, tag }: { p: Presentation; fav: boolean; to
       </div>
 
       <div className="categoryLabel">{p.category}</div>
+
       <h3>{p.title}</h3>
+
       {p.description && <p>{p.description}</p>}
 
       <div className="tags">
@@ -342,8 +408,10 @@ function Card({ p, fav, toggle, open, tag }: { p: Presentation; fav: boolean; to
           <CalendarDays size={14} />
           {fmt(p.date)}
         </span>
+
         <button type="button" className="open" onClick={open}>
-          Открыть <ExternalLink size={14} />
+          Открыть
+          <ExternalLink size={14} />
         </button>
       </div>
     </article>

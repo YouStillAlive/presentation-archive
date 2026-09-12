@@ -143,7 +143,9 @@ function App() {
               className={`nav ${category === c.name && !tag ? "active" : ""}`}
               onClick={() => chooseCategory(c.name)}
             >
-              <span>{c.icon}</span>
+              <span>
+                <c.icon size={18} />
+              </span>
               {c.name}
               {c.name === "Избранное" && <em>{favs.size}</em>}
             </button>

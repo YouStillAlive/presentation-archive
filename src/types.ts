@@ -9,4 +9,9 @@ export type Presentation = {
   driveUrl: string;
   pdfUrl?: string;
 };
-export type Category = { name: string; icon: string };
+import type { LucideIcon } from "lucide-react";
+
+export type Category = {
+  name: string;
+  icon: LucideIcon;
+};

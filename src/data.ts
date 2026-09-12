@@ -1,7 +1,8 @@
+import { Library, UsersRound, Music2 } from "lucide-react";
 import type { Category } from "./types";
+
 export const categories: Category[] = [
-  { name: "Все", icon: "▦" },
-  { name: "Презентации", icon: "▤" },
-  { name: "PDF", icon: "▧" },
-  { name: "Google Slides", icon: "▥" },
+  { name: "Все", icon: Library },
+  { name: "Хор", icon: UsersRound },
+  { name: "Общее пение", icon: Music2 },
 ];

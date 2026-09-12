@@ -13,16 +13,6 @@ type DriveListResponse = {
   files?: DriveFile[];
 };
 
-const getTags = (title: string) =>
-  Array.from(
-    new Set(
-      title
-        .split(/[\s,;:!?()[\]{}"'«»—–-]+/)
-        .map((word) => word.trim())
-        .filter((word) => word.length > 2),
-    ),
-  ).slice(0, 6);
-
 const getTitle = (name: string) => name.replace(/\.(pptx?|pdf)$/i, "").trim();
 
 const toPresentation = (file: DriveFile): Presentation => {
@@ -33,7 +23,6 @@ const toPresentation = (file: DriveFile): Presentation => {
     id: file.id,
     title,
     category: file.category || "Презентации",
-    tags: getTags(title),
     date,
     year: new Date(date).getFullYear(),
     description: `Файл ${file.mimeType === "application/pdf" ? "PDF" : "презентации"} из Google Drive`,
@@ -52,9 +41,7 @@ export async function loadPresentations(): Promise<Presentation[]> {
 
   if (!response.ok) {
     const errorText = await response.text();
-
     console.error("Drive Worker error:", errorText);
-
     throw new Error(`Drive Worker error (${response.status}): ${errorText}`);
   }
 

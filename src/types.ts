@@ -2,7 +2,6 @@ export type Presentation = {
   id: string;
   title: string;
   category: string;
-  tags: string[];
   date: string;
   year: number;
   description?: string;

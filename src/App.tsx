@@ -1,5 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, CalendarDays, Download, ExternalLink, FileText, Menu, Moon, Search, Star, Sun, X } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  Download,
+  ExternalLink,
+  FileText,
+  Menu,
+  Moon,
+  Search,
+  Star,
+  Sun,
+  X,
+} from "lucide-react";
 import { categories } from "./data";
 import { loadPresentations } from "./drive";
 import type { Presentation } from "./types";
@@ -14,7 +26,6 @@ const fmt = (d: string) =>
 function App() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("Все");
-  const [tag, setTag] = useState<string | null>(null);
   const [sort, setSort] = useState<"newest" | "oldest" | "az">("az");
   const [menu, setMenu] = useState(false);
   const [selected, setSelected] = useState<Presentation | null>(null);
@@ -77,27 +88,19 @@ function App() {
       active = false;
     };
   }, []);
-
-  const allTags = useMemo(
-    () => Array.from(new Set(presentations.flatMap((p) => p.tags))).sort((a, b) => a.localeCompare(b, "ru")),
-    [presentations],
-  );
-
   const filtered = useMemo(() => {
     const s = q.trim().toLocaleLowerCase("ru");
 
     return presentations
       .filter((p) => {
-        const text = [p.title, p.category, p.description || "", ...p.tags].join(" ").toLocaleLowerCase("ru");
+        const text = [p.title, p.category, p.description || ""].join(" ").toLocaleLowerCase("ru");
 
         const matchesSearch = !s || text.includes(s);
 
         const matchesCategory =
           category === "Все" ? true : category === "Избранное" ? favs.has(p.id) : p.category === category;
 
-        const matchesTag = !tag || p.tags.includes(tag);
-
-        return matchesSearch && matchesCategory && matchesTag;
+        return matchesSearch && matchesCategory;
       })
       .sort((a, b) => {
         if (sort === "az") {
@@ -110,11 +113,10 @@ function App() {
 
         return b.date.localeCompare(a.date);
       });
-  }, [presentations, q, category, tag, sort, favs]);
+  }, [presentations, q, category, sort, favs]);
 
   const chooseCategory = (c: string) => {
     setCategory(c);
-    setTag(null);
     setMenu(false);
   };
 
@@ -137,7 +139,6 @@ function App() {
   const clearFilters = () => {
     setQ("");
     setCategory("Все");
-    setTag(null);
     setMenu(false);
   };
 
@@ -174,7 +175,7 @@ function App() {
             <button
               type="button"
               key={c.name}
-              className={`nav ${category === c.name && !tag ? "active" : ""}`}
+              className={`nav ${category === c.name ? "active" : ""}`}
               onClick={() => chooseCategory(c.name)}
             >
               <span>
@@ -186,25 +187,6 @@ function App() {
               {c.name === "Избранное" && <em>{favs.size}</em>}
             </button>
           ))}
-
-          <div className="label topics">Темы</div>
-
-          <div className="sideTags">
-            {allTags.map((t) => (
-              <button
-                type="button"
-                key={t}
-                className={tag === t ? "selected" : ""}
-                onClick={() => {
-                  setTag(t);
-                  setCategory("Все");
-                  setMenu(false);
-                }}
-              >
-                #{t}
-              </button>
-            ))}
-          </div>
         </aside>
 
         <main className="main">
@@ -213,17 +195,12 @@ function App() {
 
             <div className="eyebrow">Библиотека презентаций</div>
 
-            <p>Поиск по названию, категории, описанию и тегам в одном месте.</p>
+            <p>Поиск по названию, категории и описанию в одном месте.</p>
 
             <div className="heroMetrics">
               <div className="metric">
                 <strong>{presentations.length}</strong>
                 <span>всего</span>
-              </div>
-
-              <div className="metric">
-                <strong>{allTags.length}</strong>
-                <span>тем</span>
               </div>
 
               <div className="metric">
@@ -266,13 +243,13 @@ function App() {
           <div className="resultHead">
             <div>
               <span className="statusDot" />
-              <h2>{tag ? `#${tag}` : category}</h2>
+              <h2>{category}</h2>{" "}
             </div>
 
             <div className="resultMeta">
               <span>{filtered.length}</span>
 
-              {(q || category !== "Все" || tag) && (
+              {(q || category !== "Все") && (
                 <button type="button" className="resetBtn" onClick={clearFilters}>
                   Сбросить
                 </button>
@@ -303,10 +280,6 @@ function App() {
                   fav={favs.has(p.id)}
                   toggle={() => toggleFav(p.id)}
                   open={() => setSelected(p)}
-                  tag={(t) => {
-                    setTag(t);
-                    setCategory("Все");
-                  }}
                 />
               ))}
             </div>
@@ -358,12 +331,6 @@ function App() {
                 <span>{selected.year}</span>
               </div>
 
-              <div className="modalTags">
-                {selected.tags.map((t) => (
-                  <span key={t}>#{t}</span>
-                ))}
-              </div>
-
               <div className="actions">
                 <a
                   className="secondary"
@@ -394,19 +361,7 @@ function App() {
   );
 }
 
-function Card({
-  p,
-  fav,
-  toggle,
-  open,
-  tag,
-}: {
-  p: Presentation;
-  fav: boolean;
-  toggle: () => void;
-  open: () => void;
-  tag: (t: string) => void;
-}) {
+function Card({ p, fav, toggle, open }: { p: Presentation; fav: boolean; toggle: () => void; open: () => void }) {
   return (
     <article
       className="card"
@@ -443,21 +398,6 @@ function Card({
       <h3>{p.title}</h3>
 
       {p.description && <p>{p.description}</p>}
-
-      <div className="tags">
-        {p.tags.slice(0, 4).map((t) => (
-          <button
-            type="button"
-            key={t}
-            onClick={(event) => {
-              event.stopPropagation();
-              tag(t);
-            }}
-          >
-            #{t}
-          </button>
-        ))}
-      </div>
 
       <div className="bottom">
         <span>

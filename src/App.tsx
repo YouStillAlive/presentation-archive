@@ -15,7 +15,7 @@ function App() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("Все");
   const [tag, setTag] = useState<string | null>(null);
-  const [sort, setSort] = useState<"newest" | "oldest" | "az">("newest");
+  const [sort, setSort] = useState<"newest" | "oldest" | "az">("az");
   const [menu, setMenu] = useState(false);
   const [selected, setSelected] = useState<Presentation | null>(null);
   const [presentations, setPresentations] = useState<Presentation[]>([]);

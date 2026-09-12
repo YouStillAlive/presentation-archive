@@ -4,6 +4,7 @@ type DriveFile = {
   id: string;
   name: string;
   mimeType: string;
+  category?: string;
   modifiedTime?: string;
   webViewLink?: string;
 };
@@ -24,13 +25,6 @@ const getTags = (title: string) =>
 
 const getTitle = (name: string) => name.replace(/\.(pptx?|pdf)$/i, "").trim();
 
-const getCategory = (mimeType: string) =>
-  mimeType === "application/pdf"
-    ? "PDF"
-    : mimeType === "application/vnd.google-apps.presentation"
-      ? "Google Slides"
-      : "Презентации";
-
 const toPresentation = (file: DriveFile): Presentation => {
   const date = file.modifiedTime || new Date().toISOString();
   const title = getTitle(file.name);
@@ -38,7 +32,7 @@ const toPresentation = (file: DriveFile): Presentation => {
   return {
     id: file.id,
     title,
-    category: getCategory(file.mimeType),
+    category: file.category || "Презентации",
     tags: getTags(title),
     date,
     year: new Date(date).getFullYear(),

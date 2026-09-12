@@ -11,14 +11,17 @@ npm run dev
 
 ## Google Drive data
 
-The catalog loads public presentation files directly from the configured Google Drive folder. Presentation records are not hardcoded in the app.
+The catalog loads files through the Cloudflare Worker configured in `VITE_DRIVE_WORKER_URL`. The Worker reads both public folders and labels each file by its source folder:
 
-1. Enable **Google Drive API** in a Google Cloud project.
-2. Create an API key and restrict it to your deployed website origins.
-3. Copy `.env.example` to `.env` and set `VITE_GOOGLE_DRIVE_API_KEY`.
-4. Make sure the folder and its files are shared as **Anyone with the link / Viewer**.
+- `Общее пение`: `16K1vxW6Ah36CJMo6VKmV0kax9dtbDA87`
+- `Хор`: `1inFcdWZpxAGSmkOFcb0kdZ3kinO9jYFb`
 
-The app reads `.ppt`, `.pptx`, `.pdf`, and Google Slides files. File names become titles and Drive modification dates are used for sorting.
+The Worker needs `GOOGLE_API_KEY` and can use these variables for the folder IDs:
+
+- `GOOGLE_DRIVE_FOLDER_ID` for `Общее пение`
+- `GOOGLE_DRIVE_CHOR_FOLDER_ID` for `Хор`
+
+Both folder IDs also have safe defaults in the Worker source. Make sure the folders and their files are shared as **Anyone with the link / Viewer**. File names become titles and Drive modification dates are used for sorting.
 
 Favorites are stored in browser `localStorage`.
 

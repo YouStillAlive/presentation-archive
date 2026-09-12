@@ -795,6 +795,7 @@ a {
 }
 
 .presentationDetails {
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1187,7 +1188,8 @@ a {
 
   .backdrop {
     align-items: end;
-    padding: 10px;
+    padding: 8px;
+    overflow: hidden;
   }
 
   .modal {
@@ -1200,14 +1202,21 @@ a {
 
   .presentationModal {
     width: 100%;
-    max-height: calc(100vh - 20px);
-    padding: 14px;
+    height: calc(100dvh - 16px);
+    max-height: calc(100dvh - 16px);
+    padding: 12px;
+    border-radius: 22px 22px 14px 14px;
   }
 
   .presentationModal .previewFrame {
-    height: min(48vh, 360px);
-    margin-bottom: 16px;
+    height: min(38dvh, 300px);
+    min-height: 190px;
+    margin-bottom: 12px;
     border-radius: 15px;
+  }
+
+  .presentationDetails {
+    padding: 0 4px 8px 2px;
   }
 
   .modal h2 {

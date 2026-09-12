@@ -9,23 +9,16 @@ npm install
 npm run dev
 ```
 
-## Add presentations
+## Google Drive data
 
-Edit `src/data.ts` and add records to `presentations`:
+The catalog loads public presentation files directly from the configured Google Drive folder. Presentation records are not hardcoded in the app.
 
-```ts
-{
-  id: '2026-001',
-  title: 'Бог любит нас',
-  category: 'Проповедь',
-  tags: ['Бог', 'Любовь', 'Вера'],
-  date: '2026-09-12',
-  year: 2026,
-  description: 'Краткое описание',
-  driveUrl: 'https://drive.google.com/...',
-  pdfUrl: 'https://drive.google.com/...'
-}
-```
+1. Enable **Google Drive API** in a Google Cloud project.
+2. Create an API key and restrict it to your deployed website origins.
+3. Copy `.env.example` to `.env` and set `VITE_GOOGLE_DRIVE_API_KEY`.
+4. Make sure the folder and its files are shared as **Anyone with the link / Viewer**.
+
+The app reads `.ppt`, `.pptx`, `.pdf`, and Google Slides files. File names become titles and Drive modification dates are used for sorting.
 
 Favorites are stored in browser `localStorage`.
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, CalendarDays, ExternalLink, FileText, Menu, Moon, Search, Star, Sun, X } from "lucide-react";
-import { categories, presentations } from "./data";
+import { categories } from "./data";
+import { driveFolderUrl, loadPresentations } from "./drive";
 import type { Presentation } from "./types";
 
 const fmt = (d: string) =>
@@ -13,6 +14,9 @@ function App() {
   const [sort, setSort] = useState<"newest" | "oldest" | "az">("newest");
   const [menu, setMenu] = useState(false);
   const [selected, setSelected] = useState<Presentation | null>(null);
+  const [presentations, setPresentations] = useState<Presentation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = window.localStorage.getItem("theme");
@@ -38,9 +42,28 @@ function App() {
     window.localStorage.setItem("favorites", JSON.stringify([...favs]));
   }, [favs]);
 
+  useEffect(() => {
+    let active = true;
+
+    loadPresentations()
+      .then((items) => {
+        if (active) setPresentations(items);
+      })
+      .catch((error: unknown) => {
+        if (active) setLoadError(error instanceof Error ? error.message : "Не удалось загрузить файлы из Google Drive.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const allTags = useMemo(
     () => Array.from(new Set(presentations.flatMap((p) => p.tags))).sort((a, b) => a.localeCompare(b, "ru")),
-    [],
+    [presentations],
   );
 
   const filtered = useMemo(() => {
@@ -61,7 +84,7 @@ function App() {
         if (sort === "oldest") return a.date.localeCompare(b.date);
         return b.date.localeCompare(a.date);
       });
-  }, [q, category, tag, sort, favs]);
+  }, [presentations, q, category, tag, sort, favs]);
 
   const chooseCategory = (c: string) => {
     setCategory(c);
@@ -200,7 +223,20 @@ function App() {
             </div>
           </div>
 
-          {filtered.length ? (
+          {loading ? (
+            <div className="empty">
+              <h3>Загружаем файлы</h3>
+              <p>Получаем список презентаций из Google Drive.</p>
+            </div>
+          ) : loadError ? (
+            <div className="empty">
+              <h3>Не удалось загрузить библиотеку</h3>
+              <p>{loadError}</p>
+              <a className="primary" href={driveFolderUrl} target="_blank" rel="noreferrer">
+                Открыть папку Google Drive
+              </a>
+            </div>
+          ) : filtered.length ? (
             <div className="grid">
               {filtered.map((p) => (
                 <Card

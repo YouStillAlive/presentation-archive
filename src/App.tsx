@@ -246,11 +246,21 @@ function App() {
               )}
             </div>
 
-            <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
-              <option value="newest">Сначала новые</option>
-              <option value="oldest">Сначала старые</option>
-              <option value="az">По названию</option>
-            </select>
+            <div className="toolbarSelects">
+              <select value={category} onChange={(e) => chooseCategory(e.target.value)} aria-label="Раздел">
+                {categories.map((item) => (
+                  <option key={item.name} value={item.name}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+
+              <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)} aria-label="Сортировка">
+                <option value="newest">Сначала новые</option>
+                <option value="oldest">Сначала старые</option>
+                <option value="az">По названию</option>
+              </select>
+            </div>
           </div>
 
           <div className="resultHead">

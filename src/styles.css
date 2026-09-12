@@ -366,6 +366,11 @@ a {
   margin-top: 22px;
 }
 
+.toolbarSelects {
+  display: flex;
+  gap: 10px;
+}
+
 .searchWrap {
   flex: 1;
   height: 52px;
@@ -410,7 +415,7 @@ a {
 
 .toolbar select {
   height: 52px;
-  width: 190px;
+  width: 170px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 16px;
   padding: 0 16px;
@@ -1001,6 +1006,12 @@ a {
   .searchWrap,
   .toolbar select {
     width: 100%;
+  }
+
+  .toolbarSelects {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpen,
   CalendarDays,
@@ -32,6 +32,7 @@ function App() {
   const [presentations, setPresentations] = useState<Presentation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const suppressClickUntil = useRef(0);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
@@ -183,6 +184,34 @@ function App() {
     setMenu(false);
   };
 
+  const closePresentation = () => {
+    suppressClickUntil.current = Date.now() + 500;
+    setSelected(null);
+  };
+
+  const shouldSuppressInteraction = () => Date.now() < suppressClickUntil.current;
+
+  useEffect(() => {
+    const suppressAfterModalClose = (event: Event) => {
+      if (shouldSuppressInteraction()) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+      }
+    };
+
+    document.addEventListener("pointerup", suppressAfterModalClose, true);
+    document.addEventListener("mouseup", suppressAfterModalClose, true);
+    document.addEventListener("touchend", suppressAfterModalClose, true);
+    document.addEventListener("click", suppressAfterModalClose, true);
+
+    return () => {
+      document.removeEventListener("pointerup", suppressAfterModalClose, true);
+      document.removeEventListener("mouseup", suppressAfterModalClose, true);
+      document.removeEventListener("touchend", suppressAfterModalClose, true);
+      document.removeEventListener("click", suppressAfterModalClose, true);
+    };
+  }, []);
+
   return (
     <div className={`app ${theme}`}>
       <header className="topbar">
@@ -198,11 +227,29 @@ function App() {
         </div>
 
         <div className="topActions">
-          <button type="button" className="iconBtn" aria-label="Сменить тему" onClick={toggleTheme}>
+          <button
+            type="button"
+            className="iconBtn"
+            aria-label="Сменить тему"
+            onClick={() => {
+              if (!shouldSuppressInteraction()) {
+                toggleTheme();
+              }
+            }}
+          >
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
 
-          <button type="button" className="menuBtn" aria-label="Открыть меню" onClick={() => setMenu((v) => !v)}>
+          <button
+            type="button"
+            className="menuBtn"
+            aria-label="Открыть меню"
+            onClick={() => {
+              if (!shouldSuppressInteraction()) {
+                setMenu((v) => !v);
+              }
+            }}
+          >
             <Menu size={20} />
           </button>
         </div>
@@ -344,7 +391,7 @@ function App() {
       </div>
 
       {selected && (
-        <div className="backdrop" onClick={() => setSelected(null)}>
+        <div className="backdrop" onClick={closePresentation}>
           <div className="modal presentationModal" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
@@ -352,11 +399,11 @@ function App() {
               onPointerDown={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                setSelected(null);
+                closePresentation();
               }}
               onClick={(event) => {
                 event.stopPropagation();
-                setSelected(null);
+                closePresentation();
               }}
               aria-label="Закрыть"
             >

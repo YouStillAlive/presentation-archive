@@ -115,6 +115,21 @@ function App() {
       });
   }, [presentations, q, category, sort, favs]);
 
+  const groupStats = useMemo(() => {
+    const counts = presentations.reduce<Record<string, number>>((acc, item) => {
+      acc[item.category] = (acc[item.category] || 0) + 1;
+
+      return acc;
+    }, {});
+
+    return categories
+      .filter((item) => item.name !== "Все" && item.name !== "Избранное")
+      .map((item) => ({
+        name: item.name,
+        count: counts[item.name] || 0,
+      }));
+  }, [presentations]);
+
   const chooseCategory = (c: string) => {
     setCategory(c);
     setMenu(false);
@@ -207,6 +222,13 @@ function App() {
                 <strong>{favs.size}</strong>
                 <span>избранное</span>
               </div>
+
+              {groupStats.map((item) => (
+                <div className="metric" key={item.name}>
+                  <strong>{item.count}</strong>
+                  <span>{item.name.toLocaleLowerCase("ru")}</span>
+                </div>
+              ))}
             </div>
           </section>
 

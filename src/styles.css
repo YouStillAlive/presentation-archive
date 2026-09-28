@@ -423,8 +423,15 @@ a {
   width: 170px;
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 16px;
-  padding: 0 16px;
-  background: rgba(255, 255, 255, 0.85);
+  padding: 0 42px 0 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background:
+    linear-gradient(45deg, transparent 50%, #697a95 50%) calc(100% - 28px) 50% / 6px 6px no-repeat,
+    linear-gradient(135deg, #697a95 50%, transparent 50%) calc(100% - 22px) 50% / 6px 6px no-repeat,
+    rgba(255, 255, 255, 0.85);
   color: inherit;
   outline: none;
   cursor: pointer;
@@ -432,7 +439,10 @@ a {
 }
 
 .dark .toolbar select {
-  background: rgba(10, 15, 23, 0.74);
+  background:
+    linear-gradient(45deg, transparent 50%, #dce8ff 50%) calc(100% - 28px) 50% / 6px 6px no-repeat,
+    linear-gradient(135deg, #dce8ff 50%, transparent 50%) calc(100% - 22px) 50% / 6px 6px no-repeat,
+    rgba(10, 15, 23, 0.74);
   border-color: rgba(148, 163, 184, 0.18);
 }
 

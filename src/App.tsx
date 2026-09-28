@@ -318,8 +318,8 @@ function App() {
       </div>
 
       {selected && (
-        <div className="backdrop" onMouseDown={() => setSelected(null)}>
-          <div className="modal presentationModal" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="backdrop" onClick={() => setSelected(null)}>
+          <div className="modal presentationModal" onClick={(e) => e.stopPropagation()}>
             <button type="button" className="close" onClick={() => setSelected(null)} aria-label="Закрыть">
               <X size={18} />
             </button>

@@ -23,6 +23,18 @@ const fmt = (d: string) =>
     year: "numeric",
   }).format(new Date(d));
 
+const matchesSelectedCategory = (p: Presentation, category: string, favs: Set<string>) => {
+  if (category === "Все") {
+    return true;
+  }
+
+  if (category === "Избранное") {
+    return favs.has(p.id);
+  }
+
+  return p.category === category;
+};
+
 function App() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("Все");
@@ -124,8 +136,7 @@ function App() {
 
         const matchesSearch = !s || text.includes(s);
 
-        const matchesCategory =
-          category === "Все" ? true : category === "Избранное" ? favs.has(p.id) : p.category === category;
+        const matchesCategory = matchesSelectedCategory(p, category, favs);
 
         return matchesSearch && matchesCategory;
       })
@@ -193,7 +204,7 @@ function App() {
 
   useEffect(() => {
     const suppressAfterModalClose = (event: Event) => {
-      if (shouldSuppressInteraction()) {
+      if (Date.now() < suppressClickUntil.current) {
         event.preventDefault();
         event.stopImmediatePropagation();
       }
@@ -211,6 +222,46 @@ function App() {
       document.removeEventListener("click", suppressAfterModalClose, true);
     };
   }, []);
+
+  let resultsContent;
+
+  if (loading) {
+    resultsContent = (
+      <div className="empty">
+        <h3>Загружаем файлы</h3>
+        <p>Получаем список презентаций из Google Drive.</p>
+      </div>
+    );
+  } else if (loadError) {
+    resultsContent = (
+      <div className="empty">
+        <h3>Не удалось загрузить библиотеку</h3>
+        <p>{loadError}</p>
+
+        <button type="button" className="primary" onClick={() => window.location.reload()}>
+          Попробовать снова
+        </button>
+      </div>
+    );
+  } else if (filtered.length) {
+    resultsContent = (
+      <div className="grid">
+        {filtered.map((p) => (
+          <Card key={p.id} p={p} fav={favs.has(p.id)} toggle={() => toggleFav(p.id)} open={() => setSelected(p)} />
+        ))}
+      </div>
+    );
+  } else {
+    resultsContent = (
+      <div className="empty">
+        <Search size={34} />
+
+        <h3>Ничего не найдено</h3>
+
+        <p>Попробуй другое название, тему или категорию.</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`app ${theme}`}>
@@ -352,47 +403,15 @@ function App() {
             </div>
           </div>
 
-          {loading ? (
-            <div className="empty">
-              <h3>Загружаем файлы</h3>
-              <p>Получаем список презентаций из Google Drive.</p>
-            </div>
-          ) : loadError ? (
-            <div className="empty">
-              <h3>Не удалось загрузить библиотеку</h3>
-              <p>{loadError}</p>
-
-              <button type="button" className="primary" onClick={() => window.location.reload()}>
-                Попробовать снова
-              </button>
-            </div>
-          ) : filtered.length ? (
-            <div className="grid">
-              {filtered.map((p) => (
-                <Card
-                  key={p.id}
-                  p={p}
-                  fav={favs.has(p.id)}
-                  toggle={() => toggleFav(p.id)}
-                  open={() => setSelected(p)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="empty">
-              <Search size={34} />
-
-              <h3>Ничего не найдено</h3>
-
-              <p>Попробуй другое название, тему или категорию.</p>
-            </div>
-          )}
+          {resultsContent}
         </main>
       </div>
 
       {selected && (
-        <div className="backdrop" onClick={closePresentation}>
-          <div className="modal presentationModal" onClick={(e) => e.stopPropagation()}>
+        <div className="backdrop">
+          <button type="button" className="backdropClose" onClick={closePresentation} aria-label="Закрыть" />
+
+          <div className="modal presentationModal">
             <button
               type="button"
               className="close"
@@ -469,20 +488,18 @@ function App() {
   );
 }
 
-function Card({ p, fav, toggle, open }: { p: Presentation; fav: boolean; toggle: () => void; open: () => void }) {
+type CardProps = Readonly<{
+  p: Presentation;
+  fav: boolean;
+  toggle: () => void;
+  open: () => void;
+}>;
+
+function Card({ p, fav, toggle, open }: CardProps) {
   return (
-    <article
-      className="card"
-      role="button"
-      tabIndex={0}
-      onClick={open}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          open();
-        }
-      }}
-    >
+    <article className="card">
+      <button type="button" className="cardHitArea" onClick={open} aria-label={`Открыть: ${p.title}`} />
+
       <div className="cardTop">
         <div className="fileIcon">
           <FileText size={20} />

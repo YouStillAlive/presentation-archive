@@ -560,6 +560,31 @@ select,
   outline-offset: 3px;
 }
 
+.cardHitArea {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cardHitArea:focus-visible {
+  outline: 3px solid rgba(77, 126, 243, 0.48);
+  outline-offset: 3px;
+}
+
+.card > :not(.cardHitArea) {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.card button:not(.cardHitArea) {
+  pointer-events: auto;
+}
+
 .dark .card {
   background: rgba(15, 21, 33, 0.8);
   border-color: rgba(148, 163, 184, 0.2);
@@ -800,8 +825,18 @@ select,
   -webkit-overflow-scrolling: touch;
 }
 
+.backdropClose {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+}
+
 .modal {
   position: relative;
+  z-index: 1;
   width: min(100%, 560px);
   max-height: calc(100vh - 48px);
   max-height: calc(100dvh - 48px);

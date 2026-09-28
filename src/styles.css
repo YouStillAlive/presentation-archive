@@ -603,6 +603,7 @@ select,
   border: 1px solid rgba(148, 163, 184, 0.22);
   border-radius: 18px;
   background: #eef2f7;
+  isolation: isolate;
 }
 
 .previewFrame iframe {
@@ -610,6 +611,7 @@ select,
   width: 100%;
   height: 100%;
   border: 0;
+  touch-action: pan-x pan-y;
 }
 
 .dark .previewFrame {
@@ -865,6 +867,7 @@ select,
   position: absolute;
   top: 16px;
   right: 16px;
+  z-index: 5;
   width: 36px;
   height: 36px;
   border: 0;
@@ -872,6 +875,7 @@ select,
   background: #f3f5fa;
   color: #42506b;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .dark .close {
@@ -1290,6 +1294,8 @@ select,
     width: min(100%, 560px);
     height: calc(100dvh - 16px);
     max-height: calc(100dvh - 16px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 12px;
     border-radius: 22px 22px 14px 14px;
   }
@@ -1304,7 +1310,17 @@ select,
   }
 
   .presentationDetails {
+    flex: 0 0 auto;
+    overflow: visible;
     padding: 0 4px 8px 2px;
+  }
+
+  .presentationModal .close {
+    position: sticky;
+    top: 0;
+    align-self: flex-end;
+    margin-bottom: -40px;
+    flex: 0 0 auto;
   }
 
   .modal h2 {

@@ -65,6 +65,32 @@ function App() {
   }, [favs]);
 
   useEffect(() => {
+    if (!selected || typeof document === "undefined") {
+      return;
+    }
+
+    const { body } = document;
+    const previousOverflow = body.style.overflow;
+    const previousPosition = body.style.position;
+    const previousWidth = body.style.width;
+    const previousTop = body.style.top;
+    const scrollY = window.scrollY;
+
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.width = "100%";
+    body.style.top = `-${scrollY}px`;
+
+    return () => {
+      body.style.overflow = previousOverflow;
+      body.style.position = previousPosition;
+      body.style.width = previousWidth;
+      body.style.top = previousTop;
+      window.scrollTo(0, scrollY);
+    };
+  }, [selected]);
+
+  useEffect(() => {
     let active = true;
 
     loadPresentations()
@@ -320,7 +346,20 @@ function App() {
       {selected && (
         <div className="backdrop" onClick={() => setSelected(null)}>
           <div className="modal presentationModal" onClick={(e) => e.stopPropagation()}>
-            <button type="button" className="close" onClick={() => setSelected(null)} aria-label="Закрыть">
+            <button
+              type="button"
+              className="close"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setSelected(null);
+              }}
+              onClick={(event) => {
+                event.stopPropagation();
+                setSelected(null);
+              }}
+              aria-label="Закрыть"
+            >
               <X size={18} />
             </button>
 

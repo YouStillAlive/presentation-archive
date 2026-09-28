@@ -35,16 +35,20 @@ const matchesSelectedCategory = (p: Presentation, category: string, favs: Set<st
   return p.category === category;
 };
 
+const PORTION_SIZE = 12;
+
 function App() {
   const [q, setQ] = useState("");
   const [category, setCategory] = useState("Все");
   const [sort, setSort] = useState<"newest" | "oldest" | "az">("az");
+  const [visibleCount, setVisibleCount] = useState(PORTION_SIZE);
   const [menu, setMenu] = useState(false);
   const [selected, setSelected] = useState<Presentation | null>(null);
   const [presentations, setPresentations] = useState<Presentation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const suppressClickUntil = useRef(0);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
@@ -168,6 +172,43 @@ function App() {
       }));
   }, [presentations]);
 
+  const visiblePresentations = filtered.slice(0, visibleCount);
+  const canLoadMore = visibleCount < filtered.length;
+
+  useEffect(() => {
+    setVisibleCount(PORTION_SIZE);
+  }, [q, category, sort]);
+
+  useEffect(() => {
+    setVisibleCount((current) => Math.min(Math.max(current, PORTION_SIZE), Math.max(filtered.length, PORTION_SIZE)));
+  }, [filtered.length]);
+
+  useEffect(() => {
+    const marker = loadMoreRef.current;
+
+    if (!marker || !canLoadMore) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisibleCount((current) => Math.min(current + PORTION_SIZE, filtered.length));
+        }
+      },
+      {
+        rootMargin: "260px 0px",
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(marker);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [canLoadMore, filtered.length, visibleCount]);
+
   const chooseCategory = (c: string) => {
     setCategory(c);
     setMenu(false);
@@ -245,11 +286,22 @@ function App() {
     );
   } else if (filtered.length) {
     resultsContent = (
-      <div className="grid">
-        {filtered.map((p) => (
-          <Card key={p.id} p={p} fav={favs.has(p.id)} toggle={() => toggleFav(p.id)} open={() => setSelected(p)} />
-        ))}
-      </div>
+      <>
+        <div className="grid">
+          {visiblePresentations.map((p) => (
+            <Card key={p.id} p={p} fav={favs.has(p.id)} toggle={() => toggleFav(p.id)} open={() => setSelected(p)} />
+          ))}
+        </div>
+
+        {canLoadMore && (
+          <div className="feedLoader" ref={loadMoreRef} aria-live="polite">
+            <span className="feedLoaderDot" />
+            <span>
+              Показано {visiblePresentations.length} из {filtered.length}
+            </span>
+          </div>
+        )}
+      </>
     );
   } else {
     resultsContent = (
